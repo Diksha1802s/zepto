@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const secretKey = "123rty";
+const secretKey =process.env.SECRETKEY;
 const Model = require("../models/index");
 
 module.exports = {
