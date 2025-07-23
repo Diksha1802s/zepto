@@ -256,8 +256,7 @@ nearByProvider: async (req, res) => {
           `(6371 * acos(cos(radians(${req.user.latitude}))
       * cos(radians(CAST(MIN(latitude) AS DECIMAL(10,6))))
       * cos(radians(CAST(MIN(longitude) AS DECIMAL(10,6))) - radians(${req.user.longitude}))
-      + sin(radians(${req.user.latitude})) * sin(radians(CAST(MIN(latitude) AS DECIMAL(10,6))))))`;
-    
+      + sin(radians(${req.user.latitude})) * sin(radians(CAST(MIN(latitude) AS DECIMAL(10,6))))))`    
  
           ],
         ],
