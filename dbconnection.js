@@ -1,5 +1,4 @@
 const Sequelize = require("sequelize");
-console.log("pppppppp",process.env.PASSWORD);
 
 const sequelize = new Sequelize("zepto","root",process.env.PASSWORD, {
   host:"localhost",

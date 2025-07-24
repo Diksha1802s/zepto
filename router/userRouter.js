@@ -6,7 +6,6 @@ const controller=require("../controller/index")
 
 router.post("/signUp",controller.userController.signUp)
 router.post("/logIn",controller.userController.logIn)
-router.post("/addProductInCart",authorization,controller.userController.addProductInCart)
 router.delete("/deleteProductFromCart",authorization,controller.userController.deleteProductFromCart)
 router.post("/suggestions",authorization,controller.userController.suggestions)
 router.post("/addAdress",authorization,controller.userController.addAdress)
