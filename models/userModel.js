@@ -58,7 +58,14 @@ module.exports=(Sequelize,DataTypes,sequelize)=>{
             defaultValue:0,
             comment:"0 for member 1 for not-member"
         },
-        
+        resetToken:{
+            type:DataTypes.STRING(100),
+            allowNull:true
+        },
+        resetTokenExpired:{
+            type:DataTypes.DATE,
+            allowNull:true
+        },
 
 
         

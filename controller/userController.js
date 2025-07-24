@@ -51,7 +51,11 @@ module.exports = {
         countryCode: payload.countryCode,
         foodPrefernces: payload.foodPrefernces,
       };
+
       let response = await Model.userModel.create(objToSave);
+     
+await helper.nodemailer(objToSave.email);
+
       console.log(response);
       return res.send(response);
     } catch (error) {
@@ -166,12 +170,12 @@ module.exports = {
       console.log(req.user);
       let allAddresses = await Model.userModel.findOne({
         where: { id: req.user.id },
-        include:[
+        include: [
           {
-      model: Model.addressModel,
-      as: "addresses",
-    },
-        ]
+            model: Model.addressModel,
+            as: "addresses",
+          },
+        ],
       });
       console.log("add", allAddresses);
       return res.send(allAddresses);
@@ -231,17 +235,15 @@ module.exports = {
             model: Model.orderModel,
             limit: 1,
             attributes: [
-              
               "userId",
               "amount",
               "orderStatus",
-             [
+              [
                 Sequelize.literal(
                   `(SELECT COUNT(*) FROM orders AS userOrder WHERE userOrder.userId = "${req.user.id}")`
                 ),
                 "orderCount",
-              ]
-
+              ],
             ],
           },
         ],
@@ -286,4 +288,34 @@ module.exports = {
       return res.status(500).send("Server error");
     }
   },
+  forgotPassword:async(req,res)=>{
+    try {
+      let schema=Joi.object().keys({
+        email:Joi.string().email().required(),
+      })
+      let payload= await validator.validationJoi(req.body,schema)
+      let userPresent=await Model.userModel.findOne({
+        where:{email:payload.email}
+      })
+      if(!userPresent){
+        console.log("not found")
+        return res.send(user_not_found)
+      }
+      const resetToken = await helper.randomStringGenerate(req, res);
+      await userPresent.update({
+        resetToken:resetToken,
+        resetTokenExpired:new Date(Date.now()+3600000)
+      })
+      const resetUrl=`${req.protocol}://${await helper.getHost(req,res)}/users/resetPassword?token=${resetToken}`;
+      const transporter=await helper.nodemailer();
+      const emailTemplate=await helper.forgetPasswordLinkHTML(userPresent,resetUrl)
+      console.log("temp",emailTemplate),
+      console.log("trans",transporter)
+      await transporter.sendMail(emailTemplate);
+      return helper.success(res, Response.success_msg.passwordLink);
+    } catch (error) {
+      console.log("err",error)
+      return res.send(error)
+    }
+  }
 };

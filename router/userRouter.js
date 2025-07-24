@@ -15,4 +15,5 @@ router.post("/addToCart",controller.userController.addToCart)
 router.post("/placeOrder",authorization,controller.userController.placeOrder)
 router.get("/orderHistoy",authorization,controller.userController.orderHistoy)
 router.get("/nearByProvider",authorization,controller.userController.nearByProvider)
+router.get("/forgotPassword",controller.userController.forgotPassword)
 module.exports=router;
