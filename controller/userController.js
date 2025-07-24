@@ -53,8 +53,8 @@ module.exports = {
       };
 
       let response = await Model.userModel.create(objToSave);
-     
-await helper.nodemailer(objToSave.email);
+
+      await helper.nodemailer(objToSave.email);
 
       console.log(response);
       return res.send(response);
@@ -288,34 +288,39 @@ await helper.nodemailer(objToSave.email);
       return res.status(500).send("Server error");
     }
   },
-  forgotPassword:async(req,res)=>{
+  forgotPassword: async (req, res) => {
     try {
-      let schema=Joi.object().keys({
-        email:Joi.string().email().required(),
-      })
-      let payload= await validator.validationJoi(req.body,schema)
-      let userPresent=await Model.userModel.findOne({
-        where:{email:payload.email}
-      })
-      if(!userPresent){
-        console.log("not found")
-        return res.send(user_not_found)
+      let schema = Joi.object().keys({
+        email: Joi.string().email().required(),
+      });
+      let payload = await validator.validationJoi(req.body, schema);
+      let userPresent = await Model.userModel.findOne({
+        where: { email: payload.email },
+      });
+      if (!userPresent) {
+        console.log("not found");
+        return res.send(user_not_found);
       }
       const resetToken = await helper.randomStringGenerate(req, res);
       await userPresent.update({
-        resetToken:resetToken,
-        resetTokenExpired:new Date(Date.now()+3600000)
-      })
-      const resetUrl=`${req.protocol}://${await helper.getHost(req,res)}/users/resetPassword?token=${resetToken}`;
-      const transporter=await helper.nodemailer();
-      const emailTemplate=await helper.forgetPasswordLinkHTML(userPresent,resetUrl)
-      console.log("temp",emailTemplate),
-      console.log("trans",transporter)
+        resetToken: resetToken,
+        resetTokenExpired: new Date(Date.now() + 3600000),
+      });
+      const resetUrl = `${req.protocol}://${await helper.getHost(
+        req,
+        res
+      )}/users/resetPassword?token=${resetToken}`;
+      const transporter = await helper.transporter(payload.email);
+      const emailTemplate = await helper.forgetPasswordLinkHTML(
+        userPresent,
+        resetUrl
+      );
+      console.log("temp", emailTemplate), console.log("trans", transporter);
       await transporter.sendMail(emailTemplate);
-      return helper.success(res, Response.success_msg.passwordLink);
+      return helper.success(res, "link sent successfully");
     } catch (error) {
-      console.log("err",error)
-      return res.send(error)
+      console.log("err", error);
+      return res.send(error);
     }
-  }
+  },
 };
