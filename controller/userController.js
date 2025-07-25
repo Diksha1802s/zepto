@@ -7,7 +7,7 @@ const secretKey = process.env.SECRETKEY;
 const validator = require("../helper/validator");
 const helper = require("../helper/commonHelper");
 const { Sequelize, Op } = require("sequelize");
-const Response=require("../config/response")
+const Response = require("../config/response");
 
 Model.userModel.hasMany(Model.orderModel, {
   foreignKey: "userId",
@@ -27,19 +27,16 @@ Model.addressModel.belongsTo(Model.userModel, {
 module.exports = {
   signUp: async (req, res) => {
     try {
-      console.log(req.body);
-
       let schema = Joi.object().keys({
         userName: Joi.string().required(),
         email: Joi.string().required(),
         password: Joi.string().required(),
-        role: Joi.number().required(),
+        role: Joi.number().valid(1, 2).required(),
         phoneNo: Joi.string().required(),
         countryCode: Joi.string().required(),
         foodPrefernces: Joi.number().required(),
       });
       let payload = await validator.validationJoi(req.body, schema);
-      console.log(payload);
 
       let hashpassword = await bcrypt.hash(payload.password, salt);
 
@@ -57,11 +54,10 @@ module.exports = {
 
       await helper.nodemailer(objToSave.email);
 
-      console.log(response);
-      return helper.success(res,Response.success_msg.registered,response)
+      return helper.success(res, Response.success_msg.registered, response);
     } catch (error) {
       console.log("failed", error);
-      return helper.error(res,Response.error_msg.registeration_err);
+      return helper.error(res, Response.error_msg.registeration_err);
     }
   },
   logIn: async (req, res) => {
@@ -76,7 +72,6 @@ module.exports = {
         where: { email: payload.email },
         raw: true,
       });
-      console.log(userexists);
 
       if (userexists) {
         let verify = await bcrypt.compare(
@@ -91,17 +86,15 @@ module.exports = {
             secretKey
           );
           userexists.token = token;
-      return helper.success(res,Response.success_msg.logIn,userexists)
+          return helper.success(res, Response.success_msg.logIn, userexists);
         } else {
-          return helper.success(res,Response.success_msg.logIn,userexists);
+          return helper.failed(res, Response.success_msg.logIn, userexists);
         }
       } else {
-        return res.send("user doesnt exist");
+        return helper.failed(res, Response.failed_msg.noUSer);
       }
-
-      return res.send(userexists);
     } catch (error) {
-      return helper.error(res,Response.error_msg.login_err);
+      return helper.error(res, Response.error_msg.login_err);
     }
   },
   deleteProductFromCart: async (req, res) => {
@@ -109,10 +102,10 @@ module.exports = {
       let remove = await Model.cartModel.destroy({
         where: { id: req.user.subCategoryId },
       });
-      return helper.success(res,Response.success_msg.deletetion,remove)
+      return helper.success(res, Response.success_msg.deletetion, remove);
     } catch (error) {
       console.log("error", error);
-      return helper.error(res,Response.error_msg.deletion_err);
+      return helper.error(res, Response.error_msg.deletion_err);
     }
   },
   suggestions: async (req, res) => {
@@ -126,11 +119,10 @@ module.exports = {
         suggestion: payload.suggestion,
       };
       let response = await Model.suggestionModel.create(objToSave);
-      console.log("res", response);
-      return helper.success(res,Response.success_msg.suggestion,response)
+      return helper.success(res, Response.success_msg.suggestion, response);
     } catch (error) {
       console.log("error", error);
-      return helper.error(res,Response.error_msg.suggestion_err);
+      return helper.error(res, Response.error_msg.suggestion_err);
     }
   },
   addAdress: async (req, res) => {
@@ -158,16 +150,14 @@ module.exports = {
         addressLabel: payload.addressLabel,
       };
       let response = await Model.addressModel.create(objToSave);
-      console.log("res", response);
-      return helper.success(res,Response.success_msg.address,response)
+      return helper.success(res, Response.success_msg.address, response);
     } catch (error) {
       console.log("error", error);
-      return helper.error(res,Response.error_msg.address_err);
+      return helper.error(res, Response.error_msg.address_err);
     }
   },
   addedAddresses: async (req, res) => {
     try {
-      console.log(req.user);
       let allAddresses = await Model.userModel.findOne({
         where: { id: req.user.id },
         include: [
@@ -177,11 +167,14 @@ module.exports = {
           },
         ],
       });
-      console.log("add", allAddresses);
-      return helper.success(res,Response.success_msg.addressHistory,allAddresses)
+      return helper.success(
+        res,
+        Response.success_msg.addressHistory,
+        allAddresses
+      );
     } catch (error) {
       console.log("error", error);
-      return helper.error(res,Response.error_msg.addressFetch_err);
+      return helper.error(res, Response.error_msg.addressFetch_err);
     }
   },
   addToCart: async (req, res) => {
@@ -198,11 +191,10 @@ module.exports = {
         quantity: payload.quantity,
       };
       let response = await Model.cartModel.create(objToSave);
-      console.log("res", response);
-      return helper.success(res,Response.success_msg.proAddedToCart,response)
+      return helper.success(res, Response.success_msg.proAddedToCart, response);
     } catch (error) {
       console.log("err", error);
-      return helper.error(res,Response.error_msg.addToCart_err);
+      return helper.error(res, Response.error_msg.addToCart_err);
     }
   },
   placeOrder: async (req, res) => {
@@ -217,13 +209,11 @@ module.exports = {
         cartId: payload.cartId,
         orderStatus: payload.orderStatus,
       };
-      console.log("res", objToSave);
       let response = await Model.orderModel.create(objToSave);
-      console.log("res", response);
-      return helper.success(res,Response.success_msg.orderPlaced,response)
+      return helper.success(res, Response.success_msg.orderPlaced, response);
     } catch (error) {
       console.log("err", error);
-      return helper.error(res,Response.error_msg.placeOrder_err);
+      return helper.error(res, Response.error_msg.placeOrder_err);
     }
   },
   orderHistoy: async (req, res) => {
@@ -248,11 +238,10 @@ module.exports = {
           },
         ],
       });
-      console.log("res", findOrders);
-      return helper.success(res,Response.success_msg.order_Histoy,findOrders)
+      return helper.success(res, Response.success_msg.order_Histoy, findOrders);
     } catch (error) {
       console.log("err", error);
-      return helper.error(res,Response.error_msg.orderHistoy_err);
+      return helper.error(res, Response.error_msg.orderHistoy_err);
     }
   },
   nearByProvider: async (req, res) => {
@@ -281,11 +270,14 @@ module.exports = {
         order: Sequelize.literal("radius ASC"),
       });
 
-      console.log(provider);
-      return helper.success(res,Response.success_msg.nearByProviderFound,response)
+      return helper.success(
+        res,
+        Response.success_msg.nearByProviderFound,
+        response
+      );
     } catch (error) {
       console.error("Error fetching nearby providers:", error);
-      return helper.error(res,Response.error_msg.provider_err);
+      return helper.error(res, Response.error_msg.provider_err);
     }
   },
   forgotPassword: async (req, res) => {
@@ -298,7 +290,6 @@ module.exports = {
         where: { email: payload.email },
       });
       if (!userPresent) {
-        console.log("not found");
         return res.send(user_not_found);
       }
       const resetToken = await helper.randomStringGenerate(req, res);
@@ -316,53 +307,47 @@ module.exports = {
         resetUrl
       );
       await transporter.sendMail(emailTemplate);
-      return helper.success(res,Response.success_msg.linkSent)
+      return helper.success(res, Response.success_msg.linkSent);
     } catch (error) {
       console.log("err", error);
-      return helper.error(res,Response.error_msg.forgotPass_err);
+      return helper.error(res, Response.error_msg.forgotPass_err);
     }
   },
-  resetPassword:async(req,res)=>{
+  resetPassword: async (req, res) => {
     try {
-      console.log(req.user)
-      let userData=req.user;
-      res.render("setNewPassword",{data:userData}) 
+      let userData = req.user;
+      res.render("setNewPassword", { data: userData });
     } catch (error) {
-      console.log("err",error)
-      return helper.error(res,Response.error_msg.resetPass_err);
+      console.log("err", error);
+      return helper.error(res, Response.error_msg.resetPass_err);
     }
   },
-  forgotChangePassword:async(req,res)=>{
+  forgotChangePassword: async (req, res) => {
     try {
-      console.log(req.body);
-      
-      let schema=Joi.object().keys({
-        id:Joi.string().required(),
-        newPassword:Joi.string().required(),
-        confirmPassword:Joi.string().required()
-      })
-      let payload=await validator.validationJoi(req.body,schema);
+      let schema = Joi.object().keys({
+        id: Joi.string().required(),
+        newPassword: Joi.string().required(),
+        confirmPassword: Joi.string().required(),
+      });
+      let payload = await validator.validationJoi(req.body, schema);
 
-      if(payload.newPassword!==payload.confirmPassword){
-        return helper.failed(res,Response.failed_msg.passNotMatched)
-      }else{
-      let hashpassword = await bcrypt.hash(payload.newPassword, salt);
-      let objToSave ={
-        newPassword:hashpassword,
-        resetToken:null,
-        resetTokenExpired:null
+      if (payload.newPassword !== payload.confirmPassword) {
+        return helper.failed(res, Response.failed_msg.passNotMatched);
+      } else {
+        let hashpassword = await bcrypt.hash(payload.newPassword, salt);
+        let objToSave = {
+          newPassword: hashpassword,
+          resetToken: null,
+          resetTokenExpired: null,
+        };
+        await Model.userModel.update(objToSave, {
+          where: { id: payload.id },
+        });
+        return res.render("success");
       }
-      await Model.userModel.update(objToSave,{
-        where:{id:payload.id},
-      })
-      return res.render("success")
-      }
-
     } catch (error) {
-      console.log("err",error)
-      return helper.error(res,Response.error_msg.chnagePassword_err)
+      console.log("err", error);
+      return helper.error(res, Response.error_msg.chnagePassword_err);
     }
-  }
-
-
+  },
 };

@@ -6,46 +6,46 @@ const emailTemplate = require("./emailTemplate/resetPassword");
 module.exports = {
   success: async (res, message, body = {}) => {
     try {
-      return res.status(200).json({  
-        'success': true,
-        'code': 200,
-        'message': message,
-        'body': body
+      return res.status(200).json({
+        success: true,
+        code: 200,
+        message: message,
+        body: body,
       });
     } catch (error) {
       console.log(error);
       throw error;
     }
   },
- 
+
   failed: async (res, msg, body = {}) => {
     try {
       return res.status(400).json({
-        'success': false,
-        'message': msg,
-        'code': 400,
-        'body': {}
-       });
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  },
- 
-  error: async (res, msg, body = {}) => {
-    try {
-      return res.status(500).json({
-        'success': false,
-        'message': msg,
-        'code': 500,
-        'body': {}
+        success: false,
+        message: msg,
+        code: 400,
+        body: {},
       });
     } catch (error) {
       console.log(error);
       throw error;
     }
   },
- 
+
+  error: async (res, msg, body = {}) => {
+    try {
+      return res.status(500).json({
+        success: false,
+        message: msg,
+        code: 500,
+        body: {},
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+
   fileUpload: async (file, folder = "uploads") => {
     try {
       if (!file || file.name === "") return null;
@@ -70,7 +70,7 @@ module.exports = {
     try {
       const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
-        port: 587,
+        port: process.env.NODEMAILER_PORT,
         secure: false,
         auth: {
           user: process.env.NODEMAILER_USER,
@@ -85,7 +85,7 @@ module.exports = {
         text: "Welcome!! You have successfully created your profile.",
       };
 
-      console.log(mailOptions)
+      console.log(mailOptions);
 
       await transporter.sendMail(mailOptions);
       console.log("Email sent to:", toEmail);
@@ -135,7 +135,7 @@ module.exports = {
       });
       return transporter;
     } catch (error) {
-      return res.send();
+      return error;
     }
   },
 };

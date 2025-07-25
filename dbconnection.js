@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 
-const sequelize = new Sequelize("zepto","root",process.env.PASSWORD, {
-  host:"localhost",
+const sequelize = new Sequelize("zepto", "root", process.env.PASSWORD, {
+  host: "localhost",
   dialect: "mysql",
 });
 

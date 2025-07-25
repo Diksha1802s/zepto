@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
-const secretKey =process.env.SECRETKEY;
+const secretKey = process.env.SECRETKEY;
 const Model = require("../models/index");
-const {Sequelize}=require("sequelize")
-const Response=require("../config/response")
+const { Sequelize } = require("sequelize");
+const Response = require("../config/response");
 module.exports = {
   authentication: async (req, res, next) => {
     try {
       let token = req.headers && req.headers.authorization;
-      
+
       if (!token) {
         return res.send("token required");
       }
@@ -25,11 +25,11 @@ module.exports = {
         return res.send("invalid Token");
       }
     } catch (error) {
-      return res.send("something went wrong",error);
+      return res.send("something went wrong", error);
     }
   },
 
-    forgotPasswordVerify: async (req, res, next) => {
+  forgotPasswordVerify: async (req, res, next) => {
     try {
       const { token } = req.query;
 
@@ -40,16 +40,15 @@ module.exports = {
         },
         raw: true,
       });
- 
+
       if (!user) {
         return res.render("linkExpired");
       }
- 
+
       req.user = user;
       next();
     } catch (error) {
       console.error("Forgot password token verification error:", error);
     }
   },
- 
 };
