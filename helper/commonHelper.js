@@ -4,6 +4,48 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const emailTemplate = require("./emailTemplate/resetPassword");
 module.exports = {
+  success: async (res, message, body = {}) => {
+    try {
+      return res.status(200).json({  
+        'success': true,
+        'code': 200,
+        'message': message,
+        'body': body
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+ 
+  failed: async (res, msg, body = {}) => {
+    try {
+      return res.status(400).json({
+        'success': false,
+        'message': msg,
+        'code': 400,
+        'body': {}
+       });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+ 
+  error: async (res, msg, body = {}) => {
+    try {
+      return res.status(500).json({
+        'success': false,
+        'message': msg,
+        'code': 500,
+        'body': {}
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
+ 
   fileUpload: async (file, folder = "uploads") => {
     try {
       if (!file || file.name === "") return null;
@@ -27,21 +69,23 @@ module.exports = {
   nodemailer: async (toEmail) => {
     try {
       const transporter = nodemailer.createTransport({
-        host: process.env.MAILHOST,
+        host: process.env.MAIL_HOST,
         port: 587,
         secure: false,
         auth: {
-          user: process.env.NODEMAILERUSER,
-          pass: process.env.NODEMAILERPASSWORD,
+          user: process.env.NODEMAILER_USER,
+          pass: process.env.NODEMAILER_PASSWORD,
         },
       });
 
       const mailOptions = {
-        from: process.env.MAILBY,
+        from: process.env.MAIL_BY,
         to: toEmail,
         subject: "Welcome to Our App!",
         text: "Welcome!! You have successfully created your profile.",
       };
+
+      console.log(mailOptions)
 
       await transporter.sendMail(mailOptions);
       console.log("Email sent to:", toEmail);
@@ -67,7 +111,7 @@ module.exports = {
   forgetPasswordLinkHTML: async (user, resetUrl) => {
     try {
       let mailOptions = {
-        from: process.env.MAILBY,
+        from: process.env.MAIL_BY,
         to: user.email,
         subject: "Password Reset Request",
         html: emailTemplate.forgotPassword(resetUrl),
@@ -81,12 +125,12 @@ module.exports = {
   transporter: async () => {
     try {
       const transporter = nodemailer.createTransport({
-        host: process.env.MAILHOST,
+        host: process.env.MAIL_HOST,
         port: 587,
         secure: false,
         auth: {
-          user: process.env.NODEMAILERUSER,
-          pass: process.env.NODEMAILERPASSWORD,
+          user: process.env.NODEMAILER_USER,
+          pass: process.env.NODEMAILER_PASSWORD,
         },
       });
       return transporter;
