@@ -16,6 +16,7 @@ var success_msg = {
 var failed_msg = {
   passNotMatched: "Confirm password doesnt match with new password",
   noUSer: "No user found",
+  noToken:"token not verified"
 };
 
 var error_msg = {

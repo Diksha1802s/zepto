@@ -88,7 +88,7 @@ module.exports = {
           userexists.token = token;
           return helper.success(res, Response.success_msg.logIn, userexists);
         } else {
-          return helper.failed(res, Response.failed_msg., userexists);
+          return helper.failed(res, Response.failed_msg.noToken, userexists);
         }
       } else {
         return helper.failed(res, Response.failed_msg.noUSer);
